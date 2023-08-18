@@ -1,11 +1,9 @@
 import { connect } from "@/dbConfig/dbConfig";
 import {NextRequest, NextResponse } from 'next/server'
-import { NextApiRequest } from "next";
 import Product from "@/Models/productsModel";
 
 connect();
 
-type request =  NextRequest & {headers:{username:any}}
 
 export async function POST(req: NextRequest) {
     const { name, price, image, description, quantity, category } = await req.json();
@@ -19,9 +17,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-export async function GET(req: NextRequest) {
-    const username = req.headers.get("username");
-    console.log(username);
+export async function GET() {
     const products = await Product.find();
     return NextResponse.json(products);
 }

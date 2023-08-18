@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    orders: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}]
+    orders: [{type: mongoose.Schema.Types.ObjectId, ref: 'products'}]
 })
 
 

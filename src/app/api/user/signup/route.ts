@@ -13,11 +13,11 @@ export  async function POST(
     if (!username || !password) {
         return NextResponse.json({ success: true, message: "Please enter username and password" })
     }
-    const existingAdmin = await User.findOne({username});
-    if(existingAdmin){
+    const existingUser = await User.findOne({username});
+    if(existingUser){
         return NextResponse.json({success:false,message:"Username already exists"},{status:400})
     }
-    if (!existingAdmin) {
+    if (!existingUser) {
     const newUser = new User({username,password});
     await newUser.save();
     const token = Jwt.sign({ username}, "secret");

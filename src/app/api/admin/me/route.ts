@@ -4,12 +4,9 @@ import Admin from "@/Models/adminModel";
 connect();
 
 export async function POST(req: NextRequest) {
-    // console.log(await req.json());
     try{
     const data = await req.json();
-        //  console.log(data.username);
         const existingAdmin = await Admin.findOne(data)
-        console.log(existingAdmin);
         if(existingAdmin){
         return NextResponse.json({"username":existingAdmin.username});
     }
@@ -18,7 +15,6 @@ export async function POST(req: NextRequest) {
     }
 }
 catch(err){
-    console.log(err);
     return NextResponse.json({ error: "error"}, { status: 401 });
 }
 }

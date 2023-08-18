@@ -19,20 +19,18 @@ export async function middleware(request: Request) {
             }
             if(request.url.includes("admin")) {
                 if(username){
-                    const res = await fetch("http://localhost:3000/api/admin/me",{method: "POST",headers: {
+                    request.nextUrl.pathname = "/api/user/me"
+                    const res = await fetch(request.nextUrl,{method: "POST",headers: {
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({username})
                     })
                        const existingAdmin:any = await res.json()
-                       console.log(existingAdmin)
                           if(!existingAdmin.username){
                             request.nextUrl.pathname = "/api/error"
-                            console.log("admin error")
                             return NextResponse.redirect(request.nextUrl);
                           }
                           if(existingAdmin.username){
-                            // console.log(JSON.parse(JSON.stringify(username)))
                             const reqheader = new Headers(request.headers);
                              reqheader.set("username", JSON.parse(JSON.stringify(username)))
                              
@@ -47,20 +45,18 @@ export async function middleware(request: Request) {
         }
         if(request.url.includes("user")) {
         if(username){
-            const res = await fetch("http://localhost:3000/api/user/me",{method: "POST",headers: {
+            request.nextUrl.pathname = "/api/user/me"
+            const res = await fetch(request.nextUrl,{method: "POST",headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({username})
             })
                const existingUser:any = await res.json()
-               console.log(existingUser.username)
                   if(!existingUser.username){
-                        console.log("user error")
                         request.nextUrl.pathname = "/api/error"
                     return NextResponse.redirect(request.nextUrl);
                   }
                   if(existingUser.username){
-                    // console.log(JSON.parse(JSON.stringify(username)))
                     const reqheader = new Headers(request.headers);
                      reqheader.set("username", JSON.parse(JSON.stringify(username)))
                      
@@ -68,8 +64,8 @@ export async function middleware(request: Request) {
                     request:{
                         headers: reqheader
                     }
-                } );
-                return response;
+                    } );
+                     return response;
                    }
             }
             
@@ -84,5 +80,5 @@ export async function middleware(request: Request) {
 
 
 export const config = {
-    matcher: ["/api/admin/products", "/api/user/products"]
+    matcher: ["/api/admin/products", "/api/user/products/:path*", "/api/user/products" ,  "/api/user/PurchasedProducts"]
   }
