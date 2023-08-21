@@ -9,7 +9,8 @@ type Request =  NextRequest & {cookies:{token:string}};
 export async function middleware(request: Request) {
     const  token  = request.cookies.get("token")?.value as string;
     if (!token) {
-        return NextResponse.json({ success: false, message: "Please login to continue" }, { status: 401 });
+         request.nextUrl.pathname = "/api/error"
+                return NextResponse.redirect(request.nextUrl);
     }
          try {
             const username = await (await jwtVerify(token, new TextEncoder().encode("secret"))).payload.username;
