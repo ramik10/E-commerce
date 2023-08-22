@@ -1,6 +1,24 @@
+
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Navbar } from '../components/navbar';
+
+import type { AppProps } from 'next/app'
+
+// const theme = createTheme({
+//   palette: {
+//     primary: {main:"#daed6e"},
+//     secondary: {main:"#444444"}
+//   },
+//   typography: {
+//     body1: {
+//       fontStyle: "italic",
+//       fontWeight: "bold"
+//     }
+//   }
+// });
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,8 +33,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    // <ThemeProvider theme={theme}>
+    <div>
+      <Navbar />
+      <html lang="en">
       <body className={inter.className}>{children}</body>
     </html>
+    </div>
+    // </ThemeProvider>
   )
 }
