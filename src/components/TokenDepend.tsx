@@ -10,7 +10,22 @@ import SignupCard from "./SignupCard";
 import Dialog from "@mui/material/Dialog";
 import { useRecoilState } from 'recoil';
 import { onCloseLogin,onCloseSignup } from '../atoms/onCloseButton';
+import { createTheme } from '@mui/material';
+import { ThemeProvider } from '@emotion/react';
+import { useRouter } from 'next/navigation';
 
+const theme = createTheme({
+  palette: {
+    primary: {main:"#daed6e"},
+    secondary: {main:"#444444"}
+  },
+  typography: {
+    body1: {
+      fontStyle: "italic",
+      fontWeight: "bold"
+    }
+  }
+});
 
 
 
@@ -18,7 +33,9 @@ export function ClientNav(){
     return(
         <>
         <RecoilRoot>
+          <ThemeProvider theme={theme}>
             <TokenDepend />
+          </ThemeProvider>
         </RecoilRoot>
         </>
     )
@@ -29,12 +46,14 @@ export function ClientNav(){
 function TokenDepend(){
     const setUser = useSetRecoilState(userPresentState);
     const setIsLoading = useSetRecoilState(isLoadingState);
-    // axios.get(process.env.NEXT_URL+"/users/me",{withCredentials:true}).then((res)=>{
-    //   const username = res.data.username;
-    //   setUser(username);
-    //   setIsLoading(false);})
-    // const isLoading = useRecoilValue(isLoadingState);
-    if (false) {
+    axios.get("/api/me").then((res)=>{
+      const username = res.data.username;
+      if(username){
+      setUser(username);
+      setIsLoading(false);
+      }})
+    const isLoading = useRecoilValue(isLoadingState);
+    if (!isLoading) {
       return (
         <LoggedIn />
       )}
@@ -44,33 +63,34 @@ function TokenDepend(){
         )
       }
     }
-    type username = String | null;
+  
 
     function LoggedIn(){
-        const username:username = useRecoilValue(userPresentState);
+        const router = useRouter();
+        const username = useRecoilValue(userPresentState);
         return(
-          // <div style={{display: 'flex', justifyContent:"flex-end"}}>
-          //         {username && <Typography  color="white" variant="h3" component="div" sx={{ fontSize:{lg:"140%", xs:"100%"}, flexGrow: 1,paddingTop:{lg:"1.5%", xs:"3%"}, paddingLeft:{lg:"10px", xs:"5px"}, paddingRight:{lg:"30px", xs:"0px"} }}>
-          //           {username}
-          //         </Typography>
-          //         }
-          //         <Box sx={{paddingLeft:2}} >
-          //         <Button variant='contained' color="primary" sx={{paddingLeft:{lg:"10px", xs:"1px"}}} onClick={()=>{navigate("/courses")}}>Courses</Button>
-          //         <Button variant='contained' color="primary" sx={{paddingLeft:{lg:"10px", xs:"1px"}}} onClick={()=>{navigate("/courses/purchased")}}>MyCourses</Button>
-          //         <LogoutButton />
-          //         </Box>
-          //  </div>
-          <div>SUCCESS</div>
+          <>
+          <div style={{display: 'flex', justifyContent:"flex-end"}}>
+                  {username && <Typography  color="white" variant="h3" component="div" sx={{ fontSize:{lg:"140%", xs:"100%"}, flexGrow: 1,paddingTop:{lg:"1.5%", xs:"3%"}, paddingLeft:{lg:"10px", xs:"5px"}, paddingRight:{lg:"30px", xs:"0px"} }}>
+                  {username}
+                  </Typography>
+                  }
+                  <Box sx={{paddingLeft:2}} >
+                  <Button variant='contained' color="primary" sx={{paddingLeft:{lg:"10px", xs:"1px"}}} onClick={()=>{router.push("/user/products")}}>products</Button>
+                  <LogoutButton />
+                  </Box>
+           </div>
+          </>
         )
       }
       function LogoutButton(){
         const setUser = useSetRecoilState(userPresentState);
         const setIsLoading = useSetRecoilState(isLoadingState);
         function logout(){
-            localStorage.removeItem("token");
+            axios.get("/api/logout").then((res)=>{
             setUser(null)
             setIsLoading(true)
-            window.location.href="/"};
+            window.location.href="/"})};
         return(
           <Button color='primary' sx={{paddingLeft:{lg:"10px", xs:"1px"}}}onClick={logout}>Logout</Button>
         )

@@ -17,7 +17,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import { onCloseLogin, onCloseSignup } from "../atoms/onCloseButton";
 import Link from '@mui/material/Link';
-import { isLoadingState } from "../atoms/userPresentState";
+import { isLoadingState, userPresentState } from "../atoms/userPresentState";
+
 
 
 function UsernameBox(){
@@ -46,23 +47,21 @@ function SignupButton(props:any){
     const username = useRecoilValue(usernameState);
     const password = useRecoilValue(passwordState);
     const setIsLoading = useSetRecoilState(isLoadingState);
-    // const tokenPresent = useSetRecoilState(tokenPresentState);
+    const setUser = useSetRecoilState(userPresentState);
     const router = useRouter();
     function register(){
-      // const username = document.getElementById("username").value;
-      // const password = document.getElementById("password").value;
       
      
       if((username!=="")&&(password!=="")){
-      axios.post(process.env.NEXT_PUBLIC_URL+"/api/admin/"+props.ButtonName.toLowerCase(),
+      axios.post("/api/user/"+props.ButtonName.toLowerCase(),
          { username, password}
       ).then((res)=>{
-          const token = res.data.authorization;
-          localStorage.setItem("token", token)
           setIsLoading(false)
+          setUser(res.headers.username)
           // tokenPresent(true)
           console.log(res.status)
           console.log(res.data.message)
+          router.push("/user/products")
       }).catch((error) => {
           console.error(error);
         });
