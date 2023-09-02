@@ -1,6 +1,5 @@
 "use client"
 import React from "react"
-import axios from "axios"
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import TextField from '@mui/material/TextField';
@@ -17,8 +16,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import { onCloseLogin, onCloseSignup } from "../atoms/onCloseButton";
 import Link from '@mui/material/Link';
-import { isLoadingState, userPresentState } from "../atoms/userPresentState";
-
+import {signIn} from "next-auth/react"
+import axios from "axios";
 
 
 function UsernameBox(){
@@ -46,25 +45,14 @@ function PasswordBox(){
 function SignupButton(props:any){
     const username = useRecoilValue(usernameState);
     const password = useRecoilValue(passwordState);
-    const setIsLoading = useSetRecoilState(isLoadingState);
-    const setUser = useSetRecoilState(userPresentState);
     const router = useRouter();
-    function register(){
+    async function register(){
       
      
       if((username!=="")&&(password!=="")){
-      axios.post("/api/user/"+props.ButtonName.toLowerCase(),
-         { username, password}
-      ).then((res)=>{
-          setIsLoading(false)
-          setUser(res.headers.username)
+         await signIn("credentials",{username:username,password:password,redirect:false})
           // tokenPresent(true)
-          console.log(res.status)
-          console.log(res.data.message)
           router.push("/user/products")
-      }).catch((error) => {
-          console.error(error);
-        });
       }
     }
     return(
@@ -76,6 +64,7 @@ function SignupButton(props:any){
 function SignupCard(props:any){
     const close1 = useSetRecoilState(onCloseSignup);
     const close2 = useSetRecoilState(onCloseLogin);
+    const router = useRouter();
       function onClose(){
         close1(false);
         close2(false);
@@ -105,8 +94,16 @@ function SignupCard(props:any){
               <SignupButton ButtonName={props.ButtonName}/>
               
              </Box>
+             <br/>
+              <Button color="secondary" sx={{width:"50%", marginLeft:"25%", borderRadius:"16px"}} variant="contained" onClick={()=>{
+              signIn("github")
+             }} >Sign in with github</Button>
+              <br/>
+              <Button  sx={{width:"50%", marginLeft:"25%", borderRadius:"16px"}} variant="contained" onClick={()=>{
+              signIn("google")
+             }} >Sign in with Google</Button>
              <Box sx={{display:"flex",justifyContent:"center"}}>
-             <p>{props.Message+" "}<Link onClick={()=>{
+             <p>{props.Message+" "}<Link sx={{color:"blue"}} onClick={()=>{
               if(props.Redirect==="signup"){
                 close2(false);
                 close1(true);
@@ -116,6 +113,7 @@ function SignupCard(props:any){
                 close2(true);
               }
              }}>{props.Redirect}</Link></p>
+             
              </Box>
             
              

@@ -13,7 +13,8 @@ import { onCloseLogin,onCloseSignup } from '../atoms/onCloseButton';
 import { createTheme } from '@mui/material';
 import { ThemeProvider } from '@emotion/react';
 import { useRouter } from 'next/navigation';
-
+import { useSession} from 'next-auth/react';
+import {signOut} from "next-auth/react"
 const theme = createTheme({
   palette: {
     primary: {main:"#daed6e"},
@@ -44,30 +45,33 @@ export function ClientNav(){
 
 
 function TokenDepend(){
-    const setUser = useSetRecoilState(userPresentState);
     const setIsLoading = useSetRecoilState(isLoadingState);
-    axios.get("/api/me").then((res)=>{
-      const username = res.data.username;
-      if(username){
-      setUser(username);
-      setIsLoading(false);
-      }})
-    const isLoading = useRecoilValue(isLoadingState);
-    if (!isLoading) {
+    const {status} = useSession();
+    
+    if(status === "loading"){
+      return(
+        <LoggedOut/>
+      )
+    }
+    if(status === "authenticated"){
+      setIsLoading(false)
       return (
         <LoggedIn />
-      )}
-    else{
-        return(
-          <LoggedOut/>
-        )
-      }
+      )
     }
-  
+    if(status === "unauthenticated"){
+      return(
+        <LoggedOut/>
+      )
+    }
+    }
 
-    function LoggedIn(){
-        const router = useRouter();
-        const username = useRecoilValue(userPresentState);
+
+   function LoggedIn(){
+        const router = useRouter(); 
+        const {data} = useSession();
+        console.log(data)
+        const username = data?.user?.name;
         return(
           <>
           <div style={{display: 'flex', justifyContent:"flex-end"}}>
@@ -86,11 +90,11 @@ function TokenDepend(){
       function LogoutButton(){
         const setUser = useSetRecoilState(userPresentState);
         const setIsLoading = useSetRecoilState(isLoadingState);
-        function logout(){
-            axios.get("/api/logout").then((res)=>{
+         async function logout(){
+            await signOut();
             setUser(null)
             setIsLoading(true)
-            window.location.href="/"})};
+            window.location.href="/"};
         return(
           <Button color='primary' sx={{paddingLeft:{lg:"10px", xs:"1px"}}}onClick={logout}>Logout</Button>
         )
