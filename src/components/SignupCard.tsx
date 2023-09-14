@@ -10,14 +10,13 @@ import {
 } from 'recoil';
 import { useRouter } from 'next/navigation'
 
-import { usernameState } from "../atoms/username";
+import { usernameState, nameState } from "../atoms/username";
 import { passwordState } from "../atoms/password";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import { onCloseLogin, onCloseSignup } from "../atoms/onCloseButton";
 import Link from '@mui/material/Link';
 import {signIn} from "next-auth/react"
-import axios from "axios";
 
 
 function UsernameBox(){
@@ -28,6 +27,17 @@ function UsernameBox(){
           borderRadius: "40px",
         }
       }} sx={{paddingLeft:"4%", paddingTop:"8%",height:"20%", width:"90%"}} id="username" variant="outlined" onChange={(e)=>setUsername(e.target.value)} type="text" placeholder="username" />
+    );
+  }
+
+  function NameBox(){
+    const setName = useSetRecoilState(nameState);
+    return(
+      <TextField InputProps={{
+        style: {
+          borderRadius: "40px",
+        }
+      }} sx={{paddingLeft:"4%", paddingTop:"8%",height:"20%", width:"90%"}} id="username" variant="outlined" onChange={(e)=>setName(e.target.value)} type="text" placeholder="name" />
     );
   }
   
@@ -43,17 +53,37 @@ function PasswordBox(){
   }
 
 function SignupButton(props:any){
-    const username = useRecoilValue(usernameState);
+    const email = useRecoilValue(usernameState);
+    const name = useRecoilValue(nameState);
     const password = useRecoilValue(passwordState);
     const router = useRouter();
     async function register(){
-      
-     
-      if((username!=="")&&(password!=="")){
-         await signIn("credentials",{username:username,password:password,redirect:false})
-          // tokenPresent(true)
-          router.push("/user/products")
+      if(props.ButtonName==="Login"){
+        signIn("credentials", {email, password});
       }
+      
+     if(props.ButtonName==="Signup"){
+      if((email!=="")&&(password!=="")){
+        fetch("/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, name }),
+        }).then(async (res) => {
+          if(res.status===210){
+            const newUser = await res.json();
+            signIn("credentials", {name:newUser.name, email: newUser.email, password: newUser.password})
+          }
+        if(res.status===220){
+        alert("Email already exists");
+        router.push("/api/auth/signin")}
+          
+        }).catch((err)=>console.log(err));
+        ;
+          // tokenPresent(true)
+      }
+    }
     }
     return(
       <Button color="primary" sx={{borderRadius:"16px"}} onClick={()=>{register()}} variant="contained">{props.ButtonName}</Button>
@@ -86,6 +116,8 @@ function SignupCard(props:any){
           <CloseIcon />
         </IconButton>
             <Typography fontFamily={'"Times New Roman", Times, serif'} color="#007FFF" variant="h3" sx={{paddingTop:"2%",fontSize: { lg: 50, md: 40, sm: 25, xs: 35 },display:"flex", justifyContent:"center"}}>{props.ButtonName}</Typography>
+            {props.ButtonName==="Signup"&&<NameBox/>}
+            {props.ButtonName==="Signup"&&<br/>}
              <UsernameBox/>
              <br/>
              <PasswordBox/>
