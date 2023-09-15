@@ -34,10 +34,17 @@ model product {
   price     Int
   quantity  Int
   image     String
-  category  String
+  category  category @relation(fields: [categoryId], references: [id])
+  categoryId String
   description String
   carts     Cart[]
   order_items OrderItem[]
+}
+
+model category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  products  product[]
 }
 model Cart {
   id        String   @id @default(uuid())
