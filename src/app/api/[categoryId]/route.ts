@@ -1,13 +1,12 @@
-import { NextResponse } from "next/server";
+import {  NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/Db/prismaFile";
 
-export async function GET( params :any) {
-    console.log(params)
+export async function GET( req:NextRequest, {params}:{params: { categoryId: string }}) {
     const products = await Prisma.product.findMany({
         where: {
             categoryId: params.categoryId
         }
     })
-    console.log(products)
+    
   return NextResponse.json(products)
 }
