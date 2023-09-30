@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <>
     <div style={{display:"flex",justifyContent:"center", marginTop:"1%", maxHeight:"60vh"}}>
-      <img src="https://www.passionateinmarketing.com/wp-content/uploads/2022/06/Flipkart.jpg" alt="Logo" style={{maxWidth:"80%", height:"auto"}}/>
+      <img src="Generate advert 0.png" alt="Logo" style={{maxWidth:"80%", height:"auto"}}/>
     </div>
     <div style={{display:"flex",justifyContent:"center", marginTop:"1%"}}>
       <h1 style={{color:"white"}}>Welcome {username}</h1>
