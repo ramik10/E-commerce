@@ -1,16 +1,14 @@
 "use client"
 import React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import Popover from '@mui/material/Popover';
 import Button from '@mui/material/Button';
 import { isLoadingState, userPresentState } from '../atoms/userPresentState';
-import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil';
-import axios from 'axios';
+import { RecoilRoot,  useSetRecoilState } from 'recoil';
 import SignupCard from "./SignupCard";
 import Dialog from "@mui/material/Dialog";
 import { useRecoilState } from 'recoil';
 import { onCloseLogin, onCloseSignup } from '../atoms/onCloseButton';
-import { createTheme } from '@mui/material';
+import { Box, Typography, createTheme } from '@mui/material';
 import { ThemeProvider } from '@emotion/react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -70,8 +68,22 @@ function TokenDepend() {
 
 
 function LoggedIn() {
+  const setUser = useSetRecoilState(userPresentState);
+  const setIsLoading = useSetRecoilState(isLoadingState);
   const { data } = useSession();
-  console.log(data)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
   const userImage = data?.user?.image;
   return (
     <>
@@ -82,24 +94,28 @@ function LoggedIn() {
         <Button sx={{ borderRadius: "50px", width:"30px", height:"50px", marginTop:"3%" }}>
           <ShoppingBagIcon onClick={() => { }} sx={{ color: "white", fontSize: "30px", marginTop: "5%" }} />
         </Button>
-        <Button sx={{ borderRadius: "50px",width:"50px", height:"50px", marginTop:"3%" }}>
+        <Button aria-describedby={id} onClick={handleClick} sx={{ borderRadius: "50px",width:"50px", height:"50px", marginTop:"3%" }}>
         <img src={userImage ?? ""} alt="userImage" style={{ width: "50px", height: "50px", borderRadius: "50%" }} />
         </Button>
-      </div>
-    </>
-  )
-}
-function LogoutButton() {
-  const setUser = useSetRecoilState(userPresentState);
-  const setIsLoading = useSetRecoilState(isLoadingState);
-  async function logout() {
-    await signOut();
+        <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <Box sx={{ p: 2, backgroundColor:"#1f2937" }}>
+        <Button onClick={async ()=> {await signOut();
     setUser(null)
     setIsLoading(true)
-    window.location.href = "/"
-  };
-  return (
-    <Button color='primary' sx={{ paddingLeft: { lg: "10px", xs: "1px" } }} onClick={logout}>Logout</Button>
+    window.location.href = "/"} }>Logout</Button>
+        </Box>
+      </Popover>
+      </div>
+    </>
   )
 }
 function LoggedOut() {
@@ -118,8 +134,8 @@ function LoggedOut() {
     setOpen2(false);
   };
   return (
-    <div><Button sx={{ marginRight: 2 }} variant='contained' color='primary' onClick={handleClickOpen}>Login</Button>
-      <Button variant='contained' color='primary' onClick={handleClickOpen2}>Signup</Button>
+    <div><Button sx={{ maxWidth:"15vw", marginRight:{xs:"0vw", md:"2vw", lg:"1vw"}}} variant="text" color='primary' onClick={handleClickOpen}>Login</Button>
+      <Button sx={{ maxWidth:"15vw"}} variant='contained' color='primary' onClick={handleClickOpen2}>Signup</Button>
       <Dialog PaperProps={{ sx: { borderRadius: "35px" } }} maxWidth="sm" fullWidth onClose={handleClose} open={open}>
         <SignupCard ButtonName="Login" Redirect="signup" Message="Have not registered yet" />
       </Dialog>
